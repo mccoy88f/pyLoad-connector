@@ -125,3 +125,16 @@ button.danger {
 #status.error {
   color: var(--danger);
 }
+
+.credits {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.credits a {
+  color: var(--accent);
+}

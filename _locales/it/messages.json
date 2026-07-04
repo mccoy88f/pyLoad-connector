@@ -1,86 +1,203 @@
 {
-  "extName": { "message": "pyLoad Connector" },
-  "extDescription": { "message": "Invia link a pyLoad 0.5.0 dal menù contestuale e intercetta i download di Chrome (alternativa a Yape, usa la sessione web + CSRF)." },
-
-  "menuDownloadWithPyload": { "message": "Scarica con pyLoad" },
-
-  "notifNoLinksTitle": { "message": "Nessun link trovato" },
-  "notifNoLinksMessage": { "message": "La selezione non contiene URL validi." },
-  "notifAddedTitle": { "message": "Aggiunto a pyLoad" },
+  "extName": {
+    "message": "pyLoad Connector"
+  },
+  "extDescription": {
+    "message": "Invia link a pyLoad 0.5.0 dal menù contestuale e intercetta i download di Chrome (alternativa a Yape, usa la sessione web + CSRF)."
+  },
+  "menuDownloadWithPyload": {
+    "message": "Scarica con pyLoad"
+  },
+  "notifNoLinksTitle": {
+    "message": "Nessun link trovato"
+  },
+  "notifNoLinksMessage": {
+    "message": "La selezione non contiene URL validi."
+  },
+  "notifAddedTitle": {
+    "message": "Aggiunto a pyLoad"
+  },
   "notifSentOne": {
     "message": "1 link inviato nel pacchetto \"$NAME$\".",
-    "placeholders": { "name": { "content": "$1" } }
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
   },
   "notifSentMany": {
     "message": "$COUNT$ link inviati nel pacchetto \"$NAME$\".",
     "placeholders": {
-      "count": { "content": "$1" },
-      "name": { "content": "$2" }
+      "count": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$2"
+      }
     }
   },
-  "notifSessionExpiredTitle": { "message": "Sessione pyLoad scaduta" },
-  "notifSessionExpiredMessage": { "message": "Clicca qui per accedere all'interfaccia web di pyLoad, poi riprova." },
-  "notifErrorTitle": { "message": "Errore pyLoad" },
-
-  "actionTitleOn": { "message": "pyLoad Connector – intercettazione download ATTIVA (clicca per disattivare)" },
-  "actionTitleOff": { "message": "pyLoad Connector – intercettazione download disattivata (clicca per attivare)" },
-
-  "errNoServer": { "message": "Indirizzo del server pyLoad non configurato" },
+  "notifSessionExpiredTitle": {
+    "message": "Sessione pyLoad scaduta"
+  },
+  "notifSessionExpiredMessage": {
+    "message": "Clicca qui per accedere all'interfaccia web di pyLoad, poi riprova."
+  },
+  "notifErrorTitle": {
+    "message": "Errore pyLoad"
+  },
+  "actionTitleOn": {
+    "message": "pyLoad Connector – intercettazione download ATTIVA (clicca per disattivare)"
+  },
+  "actionTitleOff": {
+    "message": "pyLoad Connector – intercettazione download disattivata (clicca per attivare)"
+  },
+  "errNoServer": {
+    "message": "Indirizzo del server pyLoad non configurato"
+  },
   "errInvalidPort": {
     "message": "Porta non valida: \"$PORT$\"",
-    "placeholders": { "port": { "content": "$1" } }
+    "placeholders": {
+      "port": {
+        "content": "$1"
+      }
+    }
   },
   "errUnreachable": {
     "message": "Server pyLoad non raggiungibile ($BASE$)",
-    "placeholders": { "base": { "content": "$1" } }
+    "placeholders": {
+      "base": {
+        "content": "$1"
+      }
+    }
   },
   "errHttpDashboard": {
     "message": "pyLoad ha risposto HTTP $STATUS$ su /dashboard",
-    "placeholders": { "status": { "content": "$1" } }
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
   },
   "errHttp": {
     "message": "pyLoad ha risposto HTTP $STATUS$ $TEXT$",
     "placeholders": {
-      "status": { "content": "$1" },
-      "text": { "content": "$2" }
+      "status": {
+        "content": "$1"
+      },
+      "text": {
+        "content": "$2"
+      }
     }
   },
-  "errSessionExpired": { "message": "Sessione pyLoad assente o scaduta: accedi all'interfaccia web e riprova" },
-  "errNoLinks": { "message": "Nessun link da inviare" },
-  "errDownloadGone": { "message": "Download non più disponibile" },
-  "errRestartChrome": { "message": "Impossibile riavviare il download con Chrome" },
-
-  "interceptTitle": { "message": "Download intercettato" },
-  "interceptQuestion": { "message": "Come vuoi scaricare questo file?" },
-  "btnPyload": { "message": "Scarica con pyLoad" },
-  "btnChrome": { "message": "Continua con Chrome" },
-  "btnAbort": { "message": "Annulla download" },
-  "statusSending": { "message": "Invio a pyLoad…" },
-  "statusSentOk": { "message": "Inviato a pyLoad ✓" },
-  "statusFailed": { "message": "Operazione non riuscita" },
-  "sessionExpiredPrefix": { "message": "Sessione pyLoad assente o scaduta. " },
-  "sessionExpiredLink": { "message": "Accedi all'interfaccia web" },
-  "sessionExpiredSuffix": { "message": " e riprova." },
-
-  "optionsTitle": { "message": "pyLoad Connector – Opzioni" },
-  "serverLabel": { "message": "Server pyLoad" },
-  "protocolTitle": { "message": "Protocollo" },
-  "hostTitle": { "message": "URL / host" },
-  "portTitle": { "message": "Porta (vuota se non serve)" },
-  "hostPlaceholder": { "message": "192.168.1.10 oppure pyload.example.com" },
-  "portPlaceholder": { "message": "Porta" },
-  "serverHint": { "message": "Protocollo, indirizzo e porta dell'interfaccia web di pyLoad. Lascia la porta vuota se non serve (es. dietro reverse proxy)." },
-  "authHint": { "message": "Autenticazione: l'estensione usa la sessione del browser — devi essere già loggato nell'interfaccia web di pyLoad su questo dominio. Nessuna credenziale viene salvata nell'estensione." },
-  "destLabel": { "message": "Destinazione dei pacchetti" },
-  "destQueue": { "message": "Coda (avvia subito il download)" },
-  "destCollector": { "message": "Collector (aggiungi senza avviare)" },
-  "packageNameLabel": { "message": "Nome pacchetto fisso (opzionale)" },
-  "packageNamePlaceholder": { "message": "Se vuoto: nome file o sito del link" },
-  "interceptLabel": { "message": "Intercetta i download di Chrome" },
-  "interceptHint": { "message": "Prima di avviare un download normale, chiede se inviarlo a pyLoad." },
-  "btnSave": { "message": "Salva" },
-  "btnTest": { "message": "Prova connessione" },
-  "statusSaved": { "message": "Impostazioni salvate." },
-  "statusConnecting": { "message": "Connessione in corso…" },
-  "statusConnected": { "message": "Connesso! Sessione pyLoad attiva." }
+  "errSessionExpired": {
+    "message": "Sessione pyLoad assente o scaduta: accedi all'interfaccia web e riprova"
+  },
+  "errNoLinks": {
+    "message": "Nessun link da inviare"
+  },
+  "errDownloadGone": {
+    "message": "Download non più disponibile"
+  },
+  "errRestartChrome": {
+    "message": "Impossibile riavviare il download con Chrome"
+  },
+  "interceptTitle": {
+    "message": "Download intercettato"
+  },
+  "interceptQuestion": {
+    "message": "Come vuoi scaricare questo file?"
+  },
+  "btnPyload": {
+    "message": "Scarica con pyLoad"
+  },
+  "btnChrome": {
+    "message": "Continua con Chrome"
+  },
+  "btnAbort": {
+    "message": "Annulla download"
+  },
+  "statusSending": {
+    "message": "Invio a pyLoad…"
+  },
+  "statusSentOk": {
+    "message": "Inviato a pyLoad ✓"
+  },
+  "statusFailed": {
+    "message": "Operazione non riuscita"
+  },
+  "sessionExpiredPrefix": {
+    "message": "Sessione pyLoad assente o scaduta. "
+  },
+  "sessionExpiredLink": {
+    "message": "Accedi all'interfaccia web"
+  },
+  "sessionExpiredSuffix": {
+    "message": " e riprova."
+  },
+  "optionsTitle": {
+    "message": "pyLoad Connector – Opzioni"
+  },
+  "serverLabel": {
+    "message": "Server pyLoad"
+  },
+  "protocolTitle": {
+    "message": "Protocollo"
+  },
+  "hostTitle": {
+    "message": "URL / host"
+  },
+  "portTitle": {
+    "message": "Porta (vuota se non serve)"
+  },
+  "hostPlaceholder": {
+    "message": "192.168.1.10 oppure pyload.example.com"
+  },
+  "portPlaceholder": {
+    "message": "Porta"
+  },
+  "serverHint": {
+    "message": "Protocollo, indirizzo e porta dell'interfaccia web di pyLoad. Lascia la porta vuota se non serve (es. dietro reverse proxy)."
+  },
+  "authHint": {
+    "message": "Autenticazione: l'estensione usa la sessione del browser — devi essere già loggato nell'interfaccia web di pyLoad su questo dominio. Nessuna credenziale viene salvata nell'estensione."
+  },
+  "destLabel": {
+    "message": "Destinazione dei pacchetti"
+  },
+  "destQueue": {
+    "message": "Coda (avvia subito il download)"
+  },
+  "destCollector": {
+    "message": "Collector (aggiungi senza avviare)"
+  },
+  "packageNameLabel": {
+    "message": "Nome pacchetto fisso (opzionale)"
+  },
+  "packageNamePlaceholder": {
+    "message": "Se vuoto: nome file o sito del link"
+  },
+  "interceptLabel": {
+    "message": "Intercetta i download di Chrome"
+  },
+  "interceptHint": {
+    "message": "Prima di avviare un download normale, chiede se inviarlo a pyLoad."
+  },
+  "btnSave": {
+    "message": "Salva"
+  },
+  "btnTest": {
+    "message": "Prova connessione"
+  },
+  "statusSaved": {
+    "message": "Impostazioni salvate."
+  },
+  "statusConnecting": {
+    "message": "Connessione in corso…"
+  },
+  "statusConnected": {
+    "message": "Connesso! Sessione pyLoad attiva."
+  },
+  "createdBy": {
+    "message": "Creato da"
+  }
 }
