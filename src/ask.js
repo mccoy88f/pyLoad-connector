@@ -1,3 +1,7 @@
+import { localizePage, t } from "./i18n.js";
+
+localizePage();
+
 const params = new URLSearchParams(location.search);
 const interceptId = params.get("id") || "";
 const url = params.get("url") || "";
@@ -20,16 +24,16 @@ function setButtonsDisabled(disabled) {
 // di pyLoad in una nuova scheda per il re-login manuale.
 function setSessionExpired(loginUrl) {
   status.className = "error";
-  status.textContent = "Sessione pyLoad assente o scaduta. ";
+  status.textContent = t("sessionExpiredPrefix");
   const link = document.createElement("a");
   link.href = "#";
-  link.textContent = "Accedi all'interfaccia web";
+  link.textContent = t("sessionExpiredLink");
   link.addEventListener("click", (event) => {
     event.preventDefault();
     chrome.tabs.create({ url: loginUrl });
   });
   status.appendChild(link);
-  status.append(" poi riprova.");
+  status.append(t("sessionExpiredSuffix"));
 }
 
 async function choose(choice) {
@@ -37,7 +41,7 @@ async function choose(choice) {
   answered = true;
   setButtonsDisabled(true);
   if (choice === "pyload") {
-    status.textContent = "Invio a pyLoad…";
+    status.textContent = t("statusSending");
     status.className = "";
   }
   const result = await chrome.runtime.sendMessage({
@@ -49,7 +53,7 @@ async function choose(choice) {
     if (result.code === "session_expired" && result.loginUrl) {
       setSessionExpired(result.loginUrl);
     } else {
-      status.textContent = result.error || "Operazione non riuscita";
+      status.textContent = result.error || t("statusFailed");
       status.className = "error";
     }
     answered = false;

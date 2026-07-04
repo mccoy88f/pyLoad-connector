@@ -1,0 +1,86 @@
+{
+  "extName": { "message": "pyLoad Connector" },
+  "extDescription": { "message": "Send links to pyLoad 0.5.0 from the context menu and intercept Chrome downloads (Yape alternative, uses web session + CSRF)." },
+
+  "menuDownloadWithPyload": { "message": "Download with pyLoad" },
+
+  "notifNoLinksTitle": { "message": "No links found" },
+  "notifNoLinksMessage": { "message": "The selection does not contain valid URLs." },
+  "notifAddedTitle": { "message": "Added to pyLoad" },
+  "notifSentOne": {
+    "message": "1 link sent in package \"$NAME$\".",
+    "placeholders": { "name": { "content": "$1" } }
+  },
+  "notifSentMany": {
+    "message": "$COUNT$ links sent in package \"$NAME$\".",
+    "placeholders": {
+      "count": { "content": "$1" },
+      "name": { "content": "$2" }
+    }
+  },
+  "notifSessionExpiredTitle": { "message": "pyLoad session expired" },
+  "notifSessionExpiredMessage": { "message": "Click here to log in to the pyLoad web interface, then try again." },
+  "notifErrorTitle": { "message": "pyLoad error" },
+
+  "actionTitleOn": { "message": "pyLoad Connector – download interception ON (click to disable)" },
+  "actionTitleOff": { "message": "pyLoad Connector – download interception off (click to enable)" },
+
+  "errNoServer": { "message": "pyLoad server address not configured" },
+  "errInvalidPort": {
+    "message": "Invalid port: \"$PORT$\"",
+    "placeholders": { "port": { "content": "$1" } }
+  },
+  "errUnreachable": {
+    "message": "pyLoad server unreachable ($BASE$)",
+    "placeholders": { "base": { "content": "$1" } }
+  },
+  "errHttpDashboard": {
+    "message": "pyLoad responded HTTP $STATUS$ on /dashboard",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "errHttp": {
+    "message": "pyLoad responded HTTP $STATUS$ $TEXT$",
+    "placeholders": {
+      "status": { "content": "$1" },
+      "text": { "content": "$2" }
+    }
+  },
+  "errSessionExpired": { "message": "pyLoad session missing or expired: log in to the web interface and try again" },
+  "errNoLinks": { "message": "No links to send" },
+  "errDownloadGone": { "message": "Download no longer available" },
+  "errRestartChrome": { "message": "Could not restart the download with Chrome" },
+
+  "interceptTitle": { "message": "Download intercepted" },
+  "interceptQuestion": { "message": "How do you want to download this file?" },
+  "btnPyload": { "message": "Download with pyLoad" },
+  "btnChrome": { "message": "Continue with Chrome" },
+  "btnAbort": { "message": "Cancel download" },
+  "statusSending": { "message": "Sending to pyLoad…" },
+  "statusSentOk": { "message": "Sent to pyLoad ✓" },
+  "statusFailed": { "message": "Operation failed" },
+  "sessionExpiredPrefix": { "message": "pyLoad session missing or expired. " },
+  "sessionExpiredLink": { "message": "Log in to the web interface" },
+  "sessionExpiredSuffix": { "message": " and try again." },
+
+  "optionsTitle": { "message": "pyLoad Connector – Options" },
+  "serverLabel": { "message": "pyLoad server" },
+  "protocolTitle": { "message": "Protocol" },
+  "hostTitle": { "message": "URL / host" },
+  "portTitle": { "message": "Port (leave empty if not needed)" },
+  "hostPlaceholder": { "message": "192.168.1.10 or pyload.example.com" },
+  "portPlaceholder": { "message": "Port" },
+  "serverHint": { "message": "Protocol, address and port of the pyLoad web interface. Leave the port empty if not needed (e.g. behind a reverse proxy)." },
+  "authHint": { "message": "Authentication: the extension reuses the browser session — you must already be logged in to the pyLoad web interface on this domain. No credentials are stored in the extension." },
+  "destLabel": { "message": "Package destination" },
+  "destQueue": { "message": "Queue (start download immediately)" },
+  "destCollector": { "message": "Collector (add without starting)" },
+  "packageNameLabel": { "message": "Fixed package name (optional)" },
+  "packageNamePlaceholder": { "message": "If empty: file name or site of the link" },
+  "interceptLabel": { "message": "Intercept Chrome downloads" },
+  "interceptHint": { "message": "Before starting a normal download, asks whether to send it to pyLoad." },
+  "btnSave": { "message": "Save" },
+  "btnTest": { "message": "Test connection" },
+  "statusSaved": { "message": "Settings saved." },
+  "statusConnecting": { "message": "Connecting…" },
+  "statusConnected": { "message": "Connected! pyLoad session active." }
+}

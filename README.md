@@ -15,6 +15,7 @@ Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://py
   Dove il modale non può essere iniettato (pagine `chrome://`, Web Store…) si apre una finestra di scelta centrata.
 - **Click sull'icona** — l'icona dell'estensione fissata nella barra funge da interruttore dell'intercettazione: badge verde **ON** quando è attiva.
 - **Notifiche** di conferma o di errore dopo ogni invio.
+- **Multilingua** — inglese (default) e italiano, selezionati automaticamente in base alla lingua del browser (`chrome.i18n`, cartella `_locales/`).
 
 ## Installazione
 

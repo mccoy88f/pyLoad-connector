@@ -9,6 +9,8 @@ import {
 
 const MENU_ID = "pyload-send";
 
+const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions);
+
 // ---------------------------------------------------------------------------
 // Menù contestuale
 // ---------------------------------------------------------------------------
@@ -16,7 +18,7 @@ const MENU_ID = "pyload-send";
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: MENU_ID,
-    title: "Scarica con pyLoad",
+    title: t("menuDownloadWithPyload"),
     contexts: ["link", "image", "video", "audio", "selection", "page"]
   });
 });
@@ -36,7 +38,7 @@ chrome.contextMenus.onClicked.addListener((info) => {
   }
 
   if (links.length === 0) {
-    notify("Nessun link trovato", "La selezione non contiene URL validi.");
+    notify(t("notifNoLinksTitle"), t("notifNoLinksMessage"));
     return;
   }
   sendToPyload(links);
@@ -56,9 +58,7 @@ async function updateActionBadge(enabled) {
   await chrome.action.setBadgeText({ text: enabled ? "ON" : "" });
   await chrome.action.setBadgeBackgroundColor({ color: "#2e7d32" });
   await chrome.action.setTitle({
-    title: enabled
-      ? "pyLoad Connector – intercettazione download ATTIVA (clicca per disattivare)"
-      : "pyLoad Connector – intercettazione download disattivata (clicca per attivare)"
+    title: enabled ? t("actionTitleOn") : t("actionTitleOff")
   });
 }
 
@@ -83,18 +83,21 @@ async function sendToPyload(links) {
   const name = packageNameFor(links[0], settings);
   try {
     await addToPyload(name, links, settings);
-    const label = links.length === 1 ? "1 link inviato" : `${links.length} link inviati`;
-    notify("Aggiunto a pyLoad", `${label} nel pacchetto "${name}".`);
+    const message =
+      links.length === 1
+        ? t("notifSentOne", [name])
+        : t("notifSentMany", [String(links.length), name]);
+    notify(t("notifAddedTitle"), message);
     return { ok: true };
   } catch (err) {
     if (err.code === "session_expired") {
       notify(
-        "Sessione pyLoad scaduta",
-        "Clicca qui per accedere all'interfaccia web di pyLoad, poi riprova.",
+        t("notifSessionExpiredTitle"),
+        t("notifSessionExpiredMessage"),
         err.loginUrl
       );
     } else {
-      notify("Errore pyLoad", err.message);
+      notify(t("notifErrorTitle"), err.message);
     }
     return {
       ok: false,
@@ -212,7 +215,7 @@ async function showModalInActiveTab(interceptId, info) {
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: showInterceptModal,
-      args: [interceptId, info.url, info.filename]
+      args: [interceptId, info.url, info.filename, modalStrings()]
     });
     return true;
   } catch (err) {
@@ -246,10 +249,28 @@ async function openAskWindow(interceptId, info) {
   await chrome.windows.create(options);
 }
 
+// Testi del modale, tradotti nel service worker (l'API i18n non è
+// garantita nel contesto della pagina).
+function modalStrings() {
+  return {
+    title: t("interceptTitle"),
+    question: t("interceptQuestion"),
+    btnPyload: t("btnPyload"),
+    btnChrome: t("btnChrome"),
+    btnAbort: t("btnAbort"),
+    sending: t("statusSending"),
+    sentOk: t("statusSentOk"),
+    failed: t("statusFailed"),
+    sessionPrefix: t("sessionExpiredPrefix"),
+    sessionLink: t("sessionExpiredLink"),
+    sessionSuffix: t("sessionExpiredSuffix")
+  };
+}
+
 // Eseguita NELLA PAGINA via chrome.scripting.executeScript: deve essere
 // autosufficiente (niente riferimenti a variabili del service worker).
 // Usa Shadow DOM per non subire il CSS del sito.
-function showInterceptModal(interceptId, url, filename) {
+function showInterceptModal(interceptId, url, filename, strings) {
   const host = document.createElement("div");
   host.style.cssText =
     "all:initial; position:fixed; inset:0; z-index:2147483647;";
@@ -314,7 +335,7 @@ function showInterceptModal(interceptId, url, filename) {
   dialog.className = "dialog";
 
   const title = document.createElement("h2");
-  title.textContent = "Download intercettato — come vuoi scaricare?";
+  title.textContent = `${strings.title} — ${strings.question}`;
 
   const file = document.createElement("div");
   file.className = "file";
@@ -325,9 +346,9 @@ function showInterceptModal(interceptId, url, filename) {
 
   const buttons = {};
   for (const [key, label, cls] of [
-    ["pyload", "Scarica con pyLoad", "primary"],
-    ["chrome", "Continua con Chrome", ""],
-    ["abort", "Annulla download", "danger"]
+    ["pyload", strings.btnPyload, "primary"],
+    ["chrome", strings.btnChrome, ""],
+    ["abort", strings.btnAbort, "danger"]
   ]) {
     const button = document.createElement("button");
     button.textContent = label;
@@ -363,7 +384,7 @@ function showInterceptModal(interceptId, url, filename) {
     if (busy) return;
     busy = true;
     setDisabled(true);
-    if (choice === "pyload") setStatus("Invio a pyLoad…", "");
+    if (choice === "pyload") setStatus(strings.sending, "");
     chrome.runtime.sendMessage(
       { action: "intercept-choice", interceptId, choice },
       (result) => {
@@ -371,21 +392,21 @@ function showInterceptModal(interceptId, url, filename) {
           busy = false;
           setDisabled(false);
           if (result.code === "session_expired" && result.loginUrl) {
-            setStatus("Sessione pyLoad assente o scaduta. ", "error");
+            setStatus(strings.sessionPrefix, "error");
             const link = document.createElement("a");
-            link.textContent = "Accedi all'interfaccia web";
+            link.textContent = strings.sessionLink;
             link.addEventListener("click", () =>
               window.open(result.loginUrl, "_blank")
             );
             statusLine.appendChild(link);
-            statusLine.append(" poi riprova.");
+            statusLine.append(strings.sessionSuffix);
           } else {
-            setStatus(result.error || "Operazione non riuscita", "error");
+            setStatus(result.error || strings.failed, "error");
           }
           return;
         }
         if (choice === "pyload") {
-          setStatus("Inviato a pyLoad ✓", "ok");
+          setStatus(strings.sentOk, "ok");
           setTimeout(close, 1200);
         } else {
           close();
@@ -405,7 +426,7 @@ async function resolveInterceptedDownload(interceptId, choice) {
   const stored = await chrome.storage.session.get(key);
   const info = stored[key];
   if (!info) {
-    return { ok: false, error: "Download non più disponibile" };
+    return { ok: false, error: t("errDownloadGone") };
   }
 
   if (choice === "pyload") {
@@ -426,10 +447,7 @@ async function resolveInterceptedDownload(interceptId, choice) {
     try {
       await chrome.downloads.download({ url: info.url });
     } catch (err) {
-      return {
-        ok: false,
-        error: "Impossibile riavviare il download con Chrome"
-      };
+      return { ok: false, error: t("errRestartChrome") };
     }
     return { ok: true };
   }

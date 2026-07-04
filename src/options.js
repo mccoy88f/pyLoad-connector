@@ -1,4 +1,7 @@
 import { getSettings, saveSettings } from "./api.js";
+import { localizePage, t } from "./i18n.js";
+
+localizePage();
 
 const fields = ["protocol", "host", "port", "dest", "packageName"];
 const status = document.getElementById("status");
@@ -11,16 +14,16 @@ function setStatus(text, ok) {
 // Messaggio di sessione scaduta con link cliccabile per il re-login.
 function setSessionExpired(loginUrl) {
   status.className = "error";
-  status.textContent = "Sessione pyLoad assente o scaduta. ";
+  status.textContent = t("sessionExpiredPrefix");
   const link = document.createElement("a");
   link.href = "#";
-  link.textContent = "Accedi all'interfaccia web";
+  link.textContent = t("sessionExpiredLink");
   link.addEventListener("click", (event) => {
     event.preventDefault();
     chrome.tabs.create({ url: loginUrl });
   });
   status.appendChild(link);
-  status.append(" e riprova.");
+  status.append(t("sessionExpiredSuffix"));
 }
 
 async function load() {
@@ -45,15 +48,15 @@ async function collectAndSave() {
 
 document.getElementById("save").addEventListener("click", async () => {
   await collectAndSave();
-  setStatus("Impostazioni salvate.", true);
+  setStatus(t("statusSaved"), true);
 });
 
 document.getElementById("test").addEventListener("click", async () => {
   await collectAndSave();
-  setStatus("Connessione in corso…", true);
+  setStatus(t("statusConnecting"), true);
   const result = await chrome.runtime.sendMessage({ action: "test-connection" });
   if (result.ok) {
-    setStatus("Connesso! Sessione pyLoad attiva.", true);
+    setStatus(t("statusConnected"), true);
   } else if (result.code === "session_expired" && result.loginUrl) {
     setSessionExpired(result.loginUrl);
   } else {

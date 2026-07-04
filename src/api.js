@@ -31,19 +31,21 @@ export async function saveSettings(settings) {
   await chrome.storage.local.set(settings);
 }
 
+const t = (key, substitutions) => chrome.i18n.getMessage(key, substitutions);
+
 // Costruisce l'URL base del server a partire da protocollo, host e porta.
 // L'host può contenere anche un percorso (es. reverse proxy: nas.local/pyload).
 export function baseUrl(settings) {
   let host = (settings.host || "").trim();
   if (!host) {
-    throw new Error("Indirizzo del server pyLoad non configurato");
+    throw new Error(t("errNoServer"));
   }
   // Se l'utente incolla un URL completo nel campo host, rispetta quel valore.
   host = host.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
   const protocol = settings.protocol === "https" ? "https" : "http";
   const port = String(settings.port || "").trim();
   if (port && !/^\d+$/.test(port)) {
-    throw new Error(`Porta non valida: "${port}"`);
+    throw new Error(t("errInvalidPort", [port]));
   }
   // Aggiunge la porta solo se non è già presente nell'host.
   const [hostname, ...pathParts] = host.split("/");
@@ -57,9 +59,7 @@ export function loginUrlFor(settings) {
 }
 
 function sessionExpiredError(base) {
-  const err = new Error(
-    "Sessione pyLoad assente o scaduta: accedi all'interfaccia web e riprova"
-  );
+  const err = new Error(t("errSessionExpired"));
   err.code = "session_expired";
   err.loginUrl = `${base}/dashboard`;
   return err;
@@ -92,14 +92,14 @@ async function fetchCsrfToken(base) {
       cache: "no-store"
     });
   } catch (err) {
-    throw new Error(`Server pyLoad non raggiungibile (${base})`);
+    throw new Error(t("errUnreachable", [base]));
   }
 
   if (response.status === 401 || response.status === 403) {
     throw sessionExpiredError(base);
   }
   if (!response.ok) {
-    throw new Error(`pyLoad ha risposto HTTP ${response.status} su /dashboard`);
+    throw new Error(t("errHttpDashboard", [String(response.status)]));
   }
   // Redirect alla pagina di login = sessione assente/scaduta.
   if (response.redirected && /\/login/i.test(response.url)) {
@@ -122,7 +122,7 @@ async function fetchCsrfToken(base) {
 //   add_dest  = 0 (Collector) o 1 (Coda)
 export async function addToPyload(name, links, settings) {
   if (!Array.isArray(links) || links.length === 0) {
-    throw new Error("Nessun link da inviare");
+    throw new Error(t("errNoLinks"));
   }
   const config = settings || (await getSettings());
   const base = baseUrl(config);
@@ -145,7 +145,7 @@ export async function addToPyload(name, links, settings) {
       }
     });
   } catch (err) {
-    throw new Error(`Server pyLoad non raggiungibile (${base})`);
+    throw new Error(t("errUnreachable", [base]));
   }
 
   if (response.status === 401 || response.status === 403) {
@@ -153,9 +153,7 @@ export async function addToPyload(name, links, settings) {
   }
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new Error(
-      `pyLoad ha risposto HTTP ${response.status} ${text.slice(0, 200)}`
-    );
+    throw new Error(t("errHttp", [String(response.status), text.slice(0, 200)]));
   }
   return response.json().catch(() => null);
 }
