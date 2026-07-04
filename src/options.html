@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>pyLoad Connector – Opzioni</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { max-width: 560px; margin: 0 auto; padding: 24px 16px; }
+    .server-row { display: flex; gap: 8px; }
+    .server-row .proto { width: 110px; }
+    .server-row .host { flex: 1; }
+    .server-row .port { width: 90px; }
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 7px 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font: inherit;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <h1><img src="../icons/icon48.png" alt=""> pyLoad Connector – Opzioni</h1>
+
+  <label>Server pyLoad</label>
+  <div class="server-row">
+    <div class="proto">
+      <select id="protocol" title="Protocollo">
+        <option value="http">http</option>
+        <option value="https">https</option>
+      </select>
+    </div>
+    <div class="host">
+      <input type="text" id="host" placeholder="192.168.1.10 oppure nas.local/pyload" title="URL / host">
+    </div>
+    <div class="port">
+      <input type="text" id="port" placeholder="8000" inputmode="numeric" title="Porta">
+    </div>
+  </div>
+  <p class="hint">Protocollo, indirizzo e porta dell'interfaccia web di pyLoad (senza <code>/api</code>).</p>
+
+  <label for="username">Nome utente</label>
+  <input type="text" id="username" autocomplete="username">
+
+  <label for="password">Password</label>
+  <input type="password" id="password" autocomplete="current-password">
+  <p class="hint">Le credenziali sono salvate solo in locale nel browser.</p>
+
+  <label for="packageName">Nome pacchetto fisso (opzionale)</label>
+  <input type="text" id="packageName" placeholder="Se vuoto: nome file o sito del link">
+
+  <div class="checkbox-row">
+    <input type="checkbox" id="interceptDownloads">
+    <label for="interceptDownloads">Intercetta i download di Chrome<br>
+      <span class="hint">Prima di avviare un download normale, chiede se inviarlo a pyLoad.</span>
+    </label>
+  </div>
+
+  <div class="buttons">
+    <button id="save" class="primary">Salva</button>
+    <button id="test">Prova connessione</button>
+  </div>
+
+  <p id="status"></p>
+
+  <script src="options.js" type="module"></script>
+</body>
+</html>

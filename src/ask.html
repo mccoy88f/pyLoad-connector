@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Download intercettato</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .file {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin: 10px 0;
+      word-break: break-all;
+      font-size: 12px;
+      max-height: 90px;
+      overflow-y: auto;
+    }
+    .buttons { flex-direction: column; }
+    .buttons button { width: 100%; }
+  </style>
+</head>
+<body>
+  <h1><img src="../icons/icon48.png" alt=""> Download intercettato</h1>
+  <p>Come vuoi scaricare questo file?</p>
+  <div class="file" id="fileInfo"></div>
+  <div class="buttons">
+    <button id="pyload" class="primary">Scarica con pyLoad</button>
+    <button id="chrome">Continua con Chrome</button>
+    <button id="abort" class="danger">Annulla download</button>
+  </div>
+  <p id="status"></p>
+  <script src="ask.js" type="module"></script>
+</body>
+</html>

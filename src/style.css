@@ -1,0 +1,127 @@
+:root {
+  color-scheme: light dark;
+  --accent: #2d6ca2;
+  --accent-dark: #24567f;
+  --danger: #b3452f;
+  --border: #c9ced4;
+  --bg-soft: #f2f4f6;
+  --text-soft: #5a6470;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --border: #4a5058;
+    --bg-soft: #2a2e33;
+    --text-soft: #a8b0ba;
+  }
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  margin: 0;
+  padding: 16px;
+  line-height: 1.45;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+h1 img {
+  width: 24px;
+  height: 24px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin: 12px 0 4px;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="password"],
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  background: transparent;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.hint {
+  color: var(--text-soft);
+  font-size: 12px;
+  margin: 4px 0 0;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.checkbox-row input {
+  margin-top: 3px;
+}
+
+.checkbox-row label {
+  margin: 0;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #fff;
+}
+
+button.primary:hover {
+  background: var(--accent-dark);
+}
+
+button.danger {
+  color: var(--danger);
+}
+
+#status {
+  margin-top: 12px;
+  min-height: 1.4em;
+  font-weight: 600;
+}
+
+#status.ok {
+  color: #2e7d32;
+}
+
+#status.error {
+  color: var(--danger);
+}
