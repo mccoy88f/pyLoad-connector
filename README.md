@@ -1,61 +1,61 @@
 # pyLoad Connector
 
-Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://pyload.net/) — un'alternativa a Yape. Compatibile con **pyLoad 0.5.0 (pyload-ng)**: usa l'endpoint `/json/add_package` con la sessione del browser e il token CSRF, perché i vecchi endpoint `/api/login` e `/api/addPackage` su 0.5.0 rispondono 404 "Obsolete API".
+**English** | [Italiano](README.it.md)
 
-*A Chrome extension to send links to a pyLoad 0.5.0 server (alternative to Yape), using the `/json/add_package` endpoint with browser session + CSRF token.*
+A Chrome extension (Manifest V3) to send links to a [pyLoad](https://pyload.net/) server — an alternative to Yape. Compatible with **pyLoad 0.5.0 (pyload-ng)**: it uses the `/json/add_package` endpoint with the browser session and CSRF token, since the legacy `/api/login` and `/api/addPackage` endpoints respond 404 "Obsolete API" on 0.5.0.
 
-## Funzionalità
+## Features
 
-- **Menù contestuale** — tasto destro su un link, un'immagine, un video, del testo selezionato o sulla pagina → **"Scarica con pyLoad"**. Dal testo selezionato vengono estratti automaticamente tutti gli URL.
-- **Intercetta download** (opzionale) — quando Chrome sta per avviare un download normale, l'estensione **lo blocca subito** (non parte nulla e non compare nella barra dei download) e mostra un **modale nella pagina** con tre scelte:
-  - **Scarica con pyLoad** — il link viene inviato al server;
-  - **Continua con Chrome** — il download viene riavviato normalmente;
-  - **Annulla** (anche con Esc o clic fuori dal modale) — non viene scaricato nulla.
+- **Context menu** — right-click on a link, an image, a video, selected text or the page → **"Download with pyLoad"**. All URLs are automatically extracted from selected text.
+- **Download interception** (optional) — when Chrome is about to start a regular download, the extension **blocks it immediately** (nothing starts and nothing appears in the download bar) and shows an **in-page modal** with three choices:
+  - **Download with pyLoad** — the link is sent to the server;
+  - **Continue with Chrome** — the download is restarted normally;
+  - **Cancel** (also with Esc or by clicking outside the modal) — nothing is downloaded.
 
-  Dove il modale non può essere iniettato (pagine `chrome://`, Web Store…) si apre una finestra di scelta centrata.
-- **Click sull'icona** — l'icona dell'estensione fissata nella barra funge da interruttore dell'intercettazione: badge verde **ON** quando è attiva.
-- **Notifiche** di conferma o di errore dopo ogni invio.
-- **Multilingua** — inglese (default) e italiano, selezionati automaticamente in base alla lingua del browser (`chrome.i18n`, cartella `_locales/`).
+  Where the modal cannot be injected (`chrome://` pages, Web Store…) a centered chooser window opens instead.
+- **Icon click** — the pinned extension icon works as an interception toggle: green **ON** badge when active.
+- **Notifications** confirming success or reporting errors after every send.
+- **Multilingual** — English (default) and Italian, selected automatically from the browser language (`chrome.i18n`, `_locales/` folder).
 
-## Installazione
+## Installation
 
-1. Scarica o clona questo repository.
-2. Apri Chrome e vai su `chrome://extensions`.
-3. Attiva la **Modalità sviluppatore** (in alto a destra).
-4. Clicca **"Carica estensione non pacchettizzata"** e seleziona la cartella del repository.
+1. Download or clone this repository.
+2. Open Chrome and go to `chrome://extensions`.
+3. Enable **Developer mode** (top right).
+4. Click **"Load unpacked"** and select the repository folder.
 
-## Configurazione
+## Configuration
 
-Apri le **Opzioni** dell'estensione (tasto destro sull'icona → Opzioni) e imposta:
+Open the extension **Options** (right-click the icon → Options) and set:
 
-| Campo | Descrizione |
+| Field | Description |
 |---|---|
-| Protocollo | `http` o `https` |
-| Indirizzo | Host o IP del server pyLoad (es. `192.168.1.10`, anche con percorso per reverse proxy: `nas.local/pyload`) |
-| Porta | Porta dell'interfaccia web (default pyLoad: `8000`; lasciala vuota dietro reverse proxy) |
-| Destinazione | Coda (avvia subito) o Collector (aggiungi senza avviare) |
-| Nome pacchetto fisso | Se vuoto, il nome del pacchetto è ricavato dal nome file o dal sito del link |
-| Intercetta i download | Abilita la richiesta prima di ogni download di Chrome |
+| Protocol | `http` or `https` |
+| Address | Host or IP of the pyLoad server (e.g. `192.168.1.10`, paths for reverse proxies work too: `nas.local/pyload`) |
+| Port | Web interface port (pyLoad default: `8000`; leave it empty behind a reverse proxy) |
+| Destination | Queue (start immediately) or Collector (add without starting) |
+| Fixed package name | If empty, the package name is derived from the file name or the site of the link |
+| Intercept downloads | Enables the prompt before every Chrome download |
 
-Il pulsante **"Prova connessione"** verifica che il server risponda e che la sessione sia attiva.
+The **"Test connection"** button checks that the server responds and the session is active.
 
-## Autenticazione
+## Authentication
 
-pyLoad 0.5.0 non espone più un login API: l'estensione **riusa la sessione del browser**.
+pyLoad 0.5.0 no longer exposes an API login: the extension **reuses the browser session**.
 
-1. Accedi normalmente all'interfaccia web di pyLoad in una scheda del browser.
-2. L'estensione riusa quel cookie di sessione e ricava il token CSRF dalla pagina `/dashboard` prima di ogni invio.
-3. Se la sessione manca o è scaduta, l'estensione mostra un link per riaprire l'interfaccia web e rifare il login.
+1. Log in normally to the pyLoad web interface in a browser tab.
+2. The extension reuses that session cookie and extracts the CSRF token from the `/dashboard` page before every send.
+3. If the session is missing or expired, the extension shows a link to reopen the web interface and log in again.
 
-Nessuna credenziale viene salvata nell'estensione.
+No credentials are stored in the extension.
 
-## API utilizzata
+## API used
 
-- `GET /dashboard` — verifica della sessione ed estrazione del token CSRF dal tag `<meta name="csrf-token">`
-- `POST /json/add_package` — body `multipart/form-data` con `add_name`, `add_links` (URL separati da newline) e `add_dest` (0 = Collector, 1 = Coda); header `X-CSRFToken` e `X-Requested-With: XMLHttpRequest`, cookie di sessione inclusi (nomi dei campi come da sorgente pyload-ng `json_blueprint.py`)
+- `GET /dashboard` — session check and CSRF token extraction from the `<meta name="csrf-token">` tag
+- `POST /json/add_package` — `multipart/form-data` body with `add_name`, `add_links` (newline-separated URLs) and `add_dest` (0 = Collector, 1 = Queue); `X-CSRFToken` and `X-Requested-With: XMLHttpRequest` headers, session cookies included (field names as in the pyload-ng `json_blueprint.py` source)
 
-Nota: gli endpoint documentati `/api/*` di pyLoad 0.5.0 (es. `/api/add_package`) non accettano l'autenticazione a sessione usata dal frontend web; l'estensione usa gli stessi endpoint `/json/*` dell'interfaccia web.
+Note: the documented `/api/*` endpoints of pyLoad 0.5.0 (e.g. `/api/add_package`) do not accept the session authentication used by the web frontend; the extension uses the same `/json/*` endpoints as the web interface.
 
-## Nota sulle icone
+## About the icons
 
-Le icone incluse sono una ricreazione in stile pyLoad (freccia di download su cerchio blu). Per usare il logo ufficiale, sostituisci i file in `icons/` (`icon16.png`, `icon48.png`, `icon128.png`) con il PNG ufficiale ridimensionato.
+The bundled icons are a pyLoad-style recreation (download arrow on a blue circle). To use the official logo, replace the files in `icons/` (`icon16.png`, `icon48.png`, `icon128.png`) with the resized official PNG.
