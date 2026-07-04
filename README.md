@@ -1,8 +1,8 @@
 # pyLoad Connector
 
-Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://pyload.net/) — un'alternativa a Yape. Usa direttamente l'API JSON di pyLoad (`/api/addPackage`), quindi è compatibile sia con pyLoad "classico" (0.4.x) sia con **pyload-ng**.
+Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://pyload.net/) — un'alternativa a Yape. Compatibile con **pyLoad 0.5.0 (pyload-ng)**: usa l'endpoint `/json/add_package` con la sessione del browser e il token CSRF, perché i vecchi endpoint `/api/login` e `/api/addPackage` su 0.5.0 rispondono 404 "Obsolete API".
 
-*A Chrome extension to send links to a pyLoad server (alternative to Yape), using pyLoad's `addPackage` JSON API.*
+*A Chrome extension to send links to a pyLoad 0.5.0 server (alternative to Yape), using the `/json/add_package` endpoint with browser session + CSRF token.*
 
 ## Funzionalità
 
@@ -29,22 +29,29 @@ Apri le **Opzioni** dell'estensione (tasto destro sull'icona → Opzioni, oppure
 |---|---|
 | Protocollo | `http` o `https` |
 | Indirizzo | Host o IP del server pyLoad (es. `192.168.1.10`, anche con percorso per reverse proxy: `nas.local/pyload`) |
-| Porta | Porta dell'interfaccia web (default pyLoad: `8000`) |
-| Nome utente / Password | Credenziali di accesso a pyLoad |
+| Porta | Porta dell'interfaccia web (default pyLoad: `8000`; lasciala vuota dietro reverse proxy) |
+| Destinazione | Coda (avvia subito) o Collector (aggiungi senza avviare) |
 | Nome pacchetto fisso | Se vuoto, il nome del pacchetto è ricavato dal nome file o dal sito del link |
 | Intercetta i download | Abilita la richiesta prima di ogni download di Chrome |
 
-Il pulsante **"Prova connessione"** effettua il login e mostra la versione del server.
+Il pulsante **"Prova connessione"** verifica che il server risponda e che la sessione sia attiva.
 
-Le credenziali sono salvate solo in locale (`chrome.storage.local`), mai sincronizzate.
+## Autenticazione
+
+pyLoad 0.5.0 non espone più un login API: l'estensione **riusa la sessione del browser**.
+
+1. Accedi normalmente all'interfaccia web di pyLoad in una scheda del browser.
+2. L'estensione riusa quel cookie di sessione e ricava il token CSRF dalla pagina `/dashboard` prima di ogni invio.
+3. Se la sessione manca o è scaduta, l'estensione mostra un link per riaprire l'interfaccia web e rifare il login.
+
+Nessuna credenziale viene salvata nell'estensione.
 
 ## API utilizzata
 
-L'estensione parla con l'endpoint JSON di pyLoad:
+- `GET /dashboard` — verifica della sessione ed estrazione del token CSRF dall'HTML
+- `POST /json/add_package` — body `multipart/form-data` con `name`, `links` (array JSON come stringa) e `dest` (0 = Collector, 1 = Coda); header `X-CSRFToken` e `X-Requested-With: XMLHttpRequest`, cookie di sessione inclusi
 
-- `POST /api/login` — autenticazione (sessione via cookie)
-- `POST /api/addPackage` — con `name` e `links` serializzati in JSON, aggiunge il pacchetto alla coda
-- `POST /api/getServerVersion` — usato dal test di connessione
+Nota: gli endpoint documentati `/api/*` di pyLoad 0.5.0 (es. `/api/add_package`) non accettano l'autenticazione a sessione usata dal frontend web; l'estensione usa gli stessi endpoint `/json/*` dell'interfaccia web.
 
 ## Nota sulle icone
 

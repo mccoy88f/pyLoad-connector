@@ -11,12 +11,32 @@ document.getElementById("fileInfo").textContent = shortName
 
 let answered = false;
 
+function setButtonsDisabled(disabled) {
+  for (const button of document.querySelectorAll("button")) {
+    button.disabled = disabled;
+  }
+}
+
+// Messaggio di sessione scaduta con link che apre l'interfaccia web
+// di pyLoad in una nuova scheda per il re-login manuale.
+function setSessionExpired(loginUrl) {
+  status.className = "error";
+  status.textContent = "Sessione pyLoad assente o scaduta. ";
+  const link = document.createElement("a");
+  link.href = "#";
+  link.textContent = "Accedi all'interfaccia web";
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    chrome.tabs.create({ url: loginUrl });
+  });
+  status.appendChild(link);
+  status.append(" poi riprova.");
+}
+
 async function choose(choice) {
   if (answered) return;
   answered = true;
-  for (const button of document.querySelectorAll("button")) {
-    button.disabled = true;
-  }
+  setButtonsDisabled(true);
   if (choice === "pyload") {
     status.textContent = "Invio a pyLoad…";
     status.className = "";
@@ -28,12 +48,14 @@ async function choose(choice) {
     choice
   });
   if (result && result.ok === false) {
-    status.textContent = result.error || "Operazione non riuscita";
-    status.className = "error";
-    answered = false;
-    for (const button of document.querySelectorAll("button")) {
-      button.disabled = false;
+    if (result.code === "session_expired" && result.loginUrl) {
+      setSessionExpired(result.loginUrl);
+    } else {
+      status.textContent = result.error || "Operazione non riuscita";
+      status.className = "error";
     }
+    answered = false;
+    setButtonsDisabled(false);
     return;
   }
   window.close();

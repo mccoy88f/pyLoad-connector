@@ -19,6 +19,7 @@
       font: inherit;
       background: transparent;
     }
+    #status a { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -33,20 +34,20 @@
       </select>
     </div>
     <div class="host">
-      <input type="text" id="host" placeholder="192.168.1.10 oppure nas.local/pyload" title="URL / host">
+      <input type="text" id="host" placeholder="192.168.1.10 oppure pyload.example.com" title="URL / host">
     </div>
     <div class="port">
-      <input type="text" id="port" placeholder="8000" inputmode="numeric" title="Porta">
+      <input type="text" id="port" placeholder="Porta" inputmode="numeric" title="Porta (vuota se non serve)">
     </div>
   </div>
-  <p class="hint">Protocollo, indirizzo e porta dell'interfaccia web di pyLoad (senza <code>/api</code>).</p>
+  <p class="hint">Protocollo, indirizzo e porta dell'interfaccia web di pyLoad. Lascia la porta vuota se non serve (es. dietro reverse proxy).</p>
+  <p class="hint"><strong>Autenticazione:</strong> l'estensione usa la sessione del browser — devi essere già loggato nell'interfaccia web di pyLoad su questo dominio. Nessuna credenziale viene salvata nell'estensione.</p>
 
-  <label for="username">Nome utente</label>
-  <input type="text" id="username" autocomplete="username">
-
-  <label for="password">Password</label>
-  <input type="password" id="password" autocomplete="current-password">
-  <p class="hint">Le credenziali sono salvate solo in locale nel browser.</p>
+  <label for="dest">Destinazione dei pacchetti</label>
+  <select id="dest">
+    <option value="1">Coda (avvia subito il download)</option>
+    <option value="0">Collector (aggiungi senza avviare)</option>
+  </select>
 
   <label for="packageName">Nome pacchetto fisso (opzionale)</label>
   <input type="text" id="packageName" placeholder="Se vuoto: nome file o sito del link">

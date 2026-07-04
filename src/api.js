@@ -1,14 +1,23 @@
-// Client per l'API JSON di pyLoad (compatibile con pyLoad 0.4.x e pyload-ng).
-// Tutte le chiamate usano l'endpoint /api/<metodo> con parametri form-encoded
-// in cui ogni valore è serializzato in JSON, come richiesto da pyLoad.
-// La sessione è gestita tramite cookie (credentials: "include").
+// Client per pyLoad 0.5.0 (pyload-ng).
+//
+// Gli endpoint storici /api/login e /api/addPackage rispondono 404
+// "Obsolete API" su pyLoad 0.5.0. Il frontend web usa invece gli endpoint
+// /json/* con questa autenticazione:
+//   1. cookie di sessione del browser (l'utente deve essere loggato
+//      manualmente nell'interfaccia web di pyLoad su quel dominio);
+//   2. token CSRF estratto dall'HTML di una pagina autenticata
+//      (/dashboard), inviato nell'header X-CSRFToken;
+//   3. header X-Requested-With: XMLHttpRequest;
+//   4. body multipart/form-data (FormData), non JSON.
+// L'estensione quindi NON fa login autonomo e non salva credenziali:
+// se la sessione manca o è scaduta segnala "session_expired" e l'utente
+// deve riaccedere all'interfaccia web.
 
 export const DEFAULT_SETTINGS = {
   protocol: "http",
   host: "127.0.0.1",
   port: "8000",
-  username: "pyload",
-  password: "",
+  dest: "1", // 0 = Collector, 1 = Coda
   interceptDownloads: false,
   packageName: ""
 };
@@ -24,7 +33,7 @@ export async function saveSettings(settings) {
 
 // Costruisce l'URL base del server a partire da protocollo, host e porta.
 // L'host può contenere anche un percorso (es. reverse proxy: nas.local/pyload).
-function normalizeBase(settings) {
+export function baseUrl(settings) {
   let host = (settings.host || "").trim();
   if (!host) {
     throw new Error("Indirizzo del server pyLoad non configurato");
@@ -43,86 +52,117 @@ function normalizeBase(settings) {
   return [`${protocol}://${authority}`, ...pathParts].join("/");
 }
 
-// Login: a differenza degli altri metodi, /api/login accetta i parametri
-// come semplici valori form (non serializzati in JSON).
-async function login(settings) {
-  const base = normalizeBase(settings);
-  const body = new URLSearchParams({
-    username: settings.username || "",
-    password: settings.password || ""
-  });
+export function loginUrlFor(settings) {
+  return `${baseUrl(settings)}/dashboard`;
+}
+
+function sessionExpiredError(base) {
+  const err = new Error(
+    "Sessione pyLoad assente o scaduta: accedi all'interfaccia web e riprova"
+  );
+  err.code = "session_expired";
+  err.loginUrl = `${base}/dashboard`;
+  return err;
+}
+
+// Cerca il token CSRF nell'HTML di una pagina autenticata di pyLoad.
+// Prova più pattern per tollerare variazioni tra i template.
+function extractCsrfToken(html) {
+  const patterns = [
+    /<meta[^>]+name=["']csrf[-_]token["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']csrf[-_]token["']/i,
+    /<input[^>]+name=["']csrf_token["'][^>]*value=["']([^"']+)["']/i,
+    /csrf[-_]?token["']?\s*[:=]\s*["']([^"']+)["']/i
+  ];
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+// Recupera il token CSRF da /dashboard usando il cookie di sessione del
+// browser. Lancia session_expired se si finisce sulla pagina di login o
+// se il token non è presente nella pagina.
+async function fetchCsrfToken(base) {
   let response;
   try {
-    response = await fetch(`${base}/api/login`, {
-      method: "POST",
-      body,
-      credentials: "include"
+    response = await fetch(`${base}/dashboard`, {
+      credentials: "include",
+      cache: "no-store"
     });
-  } catch (err) {
-    throw new Error(`Server pyLoad non raggiungibile (${base})`);
-  }
-  if (!response.ok) {
-    throw new Error(`Login fallito: HTTP ${response.status}`);
-  }
-  const data = await response.json().catch(() => null);
-  if (data === false || data === null) {
-    throw new Error("Login fallito: nome utente o password errati");
-  }
-  return data;
-}
-
-async function rawApiCall(base, method, params) {
-  const body = new URLSearchParams();
-  for (const [key, value] of Object.entries(params || {})) {
-    body.set(key, JSON.stringify(value));
-  }
-  return fetch(`${base}/api/${method}`, {
-    method: "POST",
-    body,
-    credentials: "include"
-  });
-}
-
-// Chiama un metodo dell'API; se la sessione è scaduta (401/403)
-// effettua il login e riprova una volta.
-export async function apiCall(method, params, settings) {
-  const config = settings || (await getSettings());
-  const base = normalizeBase(config);
-
-  let response;
-  try {
-    response = await rawApiCall(base, method, params);
   } catch (err) {
     throw new Error(`Server pyLoad non raggiungibile (${base})`);
   }
 
   if (response.status === 401 || response.status === 403) {
-    await login(config);
-    response = await rawApiCall(base, method, params);
+    throw sessionExpiredError(base);
+  }
+  if (!response.ok) {
+    throw new Error(`pyLoad ha risposto HTTP ${response.status} su /dashboard`);
+  }
+  // Redirect alla pagina di login = sessione assente/scaduta.
+  if (response.redirected && /\/login/i.test(response.url)) {
+    throw sessionExpiredError(base);
   }
 
+  const html = await response.text();
+  const token = extractCsrfToken(html);
+  if (!token) {
+    throw sessionExpiredError(base);
+  }
+  return token;
+}
+
+// Aggiunge un pacchetto tramite POST /json/add_package.
+// links è un array di URL; dest: 0 = Collector, 1 = Coda.
+export async function addToPyload(name, links, settings) {
+  if (!Array.isArray(links) || links.length === 0) {
+    throw new Error("Nessun link da inviare");
+  }
+  const config = settings || (await getSettings());
+  const base = baseUrl(config);
+  const token = await fetchCsrfToken(base);
+
+  const form = new FormData();
+  form.set("name", name);
+  form.set("links", JSON.stringify(links));
+  form.set("dest", String(config.dest === "0" ? 0 : 1));
+
+  let response;
+  try {
+    response = await fetch(`${base}/json/add_package`, {
+      method: "POST",
+      body: form,
+      credentials: "include",
+      headers: {
+        "X-CSRFToken": token,
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+  } catch (err) {
+    throw new Error(`Server pyLoad non raggiungibile (${base})`);
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    throw sessionExpiredError(base);
+  }
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new Error(`pyLoad ha risposto HTTP ${response.status} ${text.slice(0, 200)}`);
+    throw new Error(
+      `pyLoad ha risposto HTTP ${response.status} ${text.slice(0, 200)}`
+    );
   }
   return response.json().catch(() => null);
 }
 
-// Aggiunge un pacchetto alla coda di pyLoad tramite addPackage(name, links).
-// Restituisce l'id del pacchetto creato.
-export async function addPackage(name, links, settings) {
-  if (!Array.isArray(links) || links.length === 0) {
-    throw new Error("Nessun link da inviare");
-  }
-  return apiCall("addPackage", { name, links }, settings);
-}
-
-// Verifica la connessione: login + lettura versione del server.
+// Verifica la connessione: il server risponde e la sessione è attiva
+// (il token CSRF è recuperabile da /dashboard).
 export async function testConnection(settings) {
   const config = settings || (await getSettings());
-  await login(config);
-  const version = await apiCall("getServerVersion", {}, config);
-  return version;
+  const base = baseUrl(config);
+  await fetchCsrfToken(base);
+  return true;
 }
 
 // Deriva un nome pacchetto leggibile da un URL (nome file o host),

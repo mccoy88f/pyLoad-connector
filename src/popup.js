@@ -8,6 +8,22 @@ function setStatus(text, ok) {
   status.className = ok ? "ok" : "error";
 }
 
+// Messaggio di sessione scaduta con link che apre l'interfaccia web
+// di pyLoad in una nuova scheda per il re-login manuale.
+function setSessionExpired(loginUrl) {
+  status.className = "error";
+  status.textContent = "Sessione pyLoad assente o scaduta. ";
+  const link = document.createElement("a");
+  link.href = "#";
+  link.textContent = "Accedi all'interfaccia web";
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    chrome.tabs.create({ url: loginUrl });
+  });
+  status.appendChild(link);
+  status.append(" e riprova.");
+}
+
 async function send(links) {
   if (links.length === 0) {
     setStatus("Nessun link valido da inviare.", false);
@@ -22,6 +38,8 @@ async function send(links) {
     const label = links.length === 1 ? "Link inviato" : `${links.length} link inviati`;
     setStatus(`${label} a pyLoad.`, true);
     document.getElementById("links").value = "";
+  } else if (result.code === "session_expired" && result.loginUrl) {
+    setSessionExpired(result.loginUrl);
   } else {
     setStatus(result.error, false);
   }

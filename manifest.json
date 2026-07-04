@@ -2,9 +2,10 @@
   "manifest_version": 3,
   "name": "pyLoad Connector",
   "version": "1.0.0",
-  "description": "Invia link a pyLoad dal menù contestuale e intercetta i download di Chrome (alternativa a Yape, usa l'API addPackage).",
+  "description": "Invia link a pyLoad 0.5.0 dal menù contestuale e intercetta i download di Chrome (alternativa a Yape, usa la sessione web + CSRF).",
   "permissions": [
     "contextMenus",
+    "cookies",
     "downloads",
     "storage",
     "notifications",
