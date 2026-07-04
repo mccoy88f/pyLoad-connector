@@ -48,8 +48,8 @@ Nessuna credenziale viene salvata nell'estensione.
 
 ## API utilizzata
 
-- `GET /dashboard` — verifica della sessione ed estrazione del token CSRF dall'HTML
-- `POST /json/add_package` — body `multipart/form-data` con `name`, `links` (array JSON come stringa) e `dest` (0 = Collector, 1 = Coda); header `X-CSRFToken` e `X-Requested-With: XMLHttpRequest`, cookie di sessione inclusi
+- `GET /dashboard` — verifica della sessione ed estrazione del token CSRF dal tag `<meta name="csrf-token">`
+- `POST /json/add_package` — body `multipart/form-data` con `add_name`, `add_links` (URL separati da newline) e `add_dest` (0 = Collector, 1 = Coda); header `X-CSRFToken` e `X-Requested-With: XMLHttpRequest`, cookie di sessione inclusi (nomi dei campi come da sorgente pyload-ng `json_blueprint.py`)
 
 Nota: gli endpoint documentati `/api/*` di pyLoad 0.5.0 (es. `/api/add_package`) non accettano l'autenticazione a sessione usata dal frontend web; l'estensione usa gli stessi endpoint `/json/*` dell'interfaccia web.
 

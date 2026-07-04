@@ -115,7 +115,11 @@ async function fetchCsrfToken(base) {
 }
 
 // Aggiunge un pacchetto tramite POST /json/add_package.
-// links è un array di URL; dest: 0 = Collector, 1 = Coda.
+// Nomi e formato dei campi come da sorgente pyload-ng 0.5.0
+// (webui/app/blueprints/json_blueprint.py, add_package):
+//   add_name  = nome pacchetto
+//   add_links = URL separati da newline (il server fa splitlines())
+//   add_dest  = 0 (Collector) o 1 (Coda)
 export async function addToPyload(name, links, settings) {
   if (!Array.isArray(links) || links.length === 0) {
     throw new Error("Nessun link da inviare");
@@ -125,9 +129,9 @@ export async function addToPyload(name, links, settings) {
   const token = await fetchCsrfToken(base);
 
   const form = new FormData();
-  form.set("name", name);
-  form.set("links", JSON.stringify(links));
-  form.set("dest", String(config.dest === "0" ? 0 : 1));
+  form.set("add_name", name);
+  form.set("add_links", links.join("\n"));
+  form.set("add_dest", String(config.dest === "0" ? 0 : 1));
 
   let response;
   try {
