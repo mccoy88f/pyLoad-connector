@@ -1,12 +1,11 @@
 const params = new URLSearchParams(location.search);
-const downloadId = Number(params.get("id"));
+const interceptId = params.get("id") || "";
 const url = params.get("url") || "";
 const filename = params.get("filename") || "";
 
 const status = document.getElementById("status");
-const shortName = filename.split(/[\\/]/).pop();
-document.getElementById("fileInfo").textContent = shortName
-  ? `${shortName}\n${url}`
+document.getElementById("fileInfo").textContent = filename
+  ? `${filename}\n${url}`
   : url;
 
 let answered = false;
@@ -43,8 +42,7 @@ async function choose(choice) {
   }
   const result = await chrome.runtime.sendMessage({
     action: "intercept-choice",
-    downloadId,
-    url,
+    interceptId,
     choice
   });
   if (result && result.ok === false) {
@@ -65,15 +63,15 @@ document.getElementById("pyload").addEventListener("click", () => choose("pyload
 document.getElementById("chrome").addEventListener("click", () => choose("chrome"));
 document.getElementById("abort").addEventListener("click", () => choose("abort"));
 
-// Se l'utente chiude la finestra senza scegliere, il download resta in pausa:
-// meglio riprenderlo con Chrome per non lasciarlo bloccato.
+// Il download è già stato annullato alla creazione: se l'utente chiude la
+// finestra senza scegliere, non parte nulla. Si notifica solo l'annullo
+// per rimuovere lo stato pendente.
 window.addEventListener("beforeunload", () => {
   if (!answered) {
     chrome.runtime.sendMessage({
       action: "intercept-choice",
-      downloadId,
-      url,
-      choice: "chrome"
+      interceptId,
+      choice: "abort"
     });
   }
 });

@@ -7,11 +7,13 @@ Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://py
 ## Funzionalità
 
 - **Menù contestuale** — tasto destro su un link, un'immagine, un video, del testo selezionato o sulla pagina → **"Scarica con pyLoad"**. Dal testo selezionato vengono estratti automaticamente tutti gli URL.
-- **Intercetta download** (opzionale) — quando Chrome avvia un download normale, l'estensione lo mette in pausa e chiede se:
-  - scaricarlo con **pyLoad** (il download di Chrome viene annullato),
-  - continuare con **Chrome**,
-  - annullarlo del tutto.
-- **Popup** — invia l'URL della scheda corrente o una lista di link incollati; interruttore rapido per l'intercettazione dei download.
+- **Intercetta download** (opzionale) — quando Chrome sta per avviare un download normale, l'estensione **lo blocca subito** (non parte nulla e non compare nella barra dei download) e mostra un **modale nella pagina** con tre scelte:
+  - **Scarica con pyLoad** — il link viene inviato al server;
+  - **Continua con Chrome** — il download viene riavviato normalmente;
+  - **Annulla** (anche con Esc o clic fuori dal modale) — non viene scaricato nulla.
+
+  Dove il modale non può essere iniettato (pagine `chrome://`, Web Store…) si apre una finestra di scelta centrata.
+- **Click sull'icona** — l'icona dell'estensione fissata nella barra funge da interruttore dell'intercettazione: badge verde **ON** quando è attiva.
 - **Notifiche** di conferma o di errore dopo ogni invio.
 
 ## Installazione
@@ -23,7 +25,7 @@ Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://py
 
 ## Configurazione
 
-Apri le **Opzioni** dell'estensione (tasto destro sull'icona → Opzioni, oppure dal link nel popup) e imposta:
+Apri le **Opzioni** dell'estensione (tasto destro sull'icona → Opzioni) e imposta:
 
 | Campo | Descrizione |
 |---|---|
