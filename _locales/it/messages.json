@@ -98,17 +98,14 @@
   "errDownloadGone": {
     "message": "Download non più disponibile"
   },
-  "errRestartChrome": {
-    "message": "Impossibile riavviare il download con Chrome"
-  },
   "interceptTitle": {
-    "message": "Download intercettato"
+    "message": "Download avviato"
   },
   "interceptQuestion": {
-    "message": "Come vuoi scaricare questo file?"
+    "message": "Continuare con pyLoad o con Chrome?"
   },
   "btnPyload": {
-    "message": "Scarica con pyLoad"
+    "message": "Continua con pyLoad"
   },
   "btnChrome": {
     "message": "Continua con Chrome"

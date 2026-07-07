@@ -140,26 +140,20 @@ chrome.notifications.onClosed.addListener((id) => notificationLinks.delete(id));
 // ---------------------------------------------------------------------------
 // Intercettazione dei download di Chrome (opzionale)
 //
-// Il download appena creato viene ANNULLATO subito, così non parte e non
-// compare nella barra dei download finché l'utente non sceglie. La scelta
-// avviene in un modale iniettato nella pagina attiva (o, dove non si può
-// iniettare, in una piccola finestra centrata). Con "Continua con Chrome"
-// il download viene riavviato da zero, saltando la re-intercettazione.
-// Lo stato pendente vive in chrome.storage.session per sopravvivere ai
-// riavvii del service worker.
+// Il download parte normalmente in Chrome: non viene messo in pausa né
+// annullato in anticipo. In parallelo si apre un modale (iniettato nella
+// pagina attiva, o una piccola finestra centrata dove non si può iniettare)
+// che chiede se continuare su pyLoad o su Chrome:
+//   - "Continua su pyLoad": il download di Chrome viene annullato e il link
+//     inviato a pyLoad (solo se l'invio riesce, altrimenti il download resta
+//     in corso e l'utente può ancora scegliere Chrome o riprovare);
+//   - "Continua su Chrome": non si fa nulla, il download prosegue da solo;
+//   - "Annulla": il download viene annullato senza inviare nulla a pyLoad.
+// Lo stato pendente (url, filename, downloadId) vive in
+// chrome.storage.session per sopravvivere ai riavvii del service worker.
 // ---------------------------------------------------------------------------
 
 const INTERCEPT_PREFIX = "intercept:";
-const BYPASS_KEY = "bypassUrls";
-
-async function getBypassUrls() {
-  const stored = await chrome.storage.session.get({ [BYPASS_KEY]: [] });
-  return stored[BYPASS_KEY];
-}
-
-async function setBypassUrls(urls) {
-  await chrome.storage.session.set({ [BYPASS_KEY]: urls });
-}
 
 // All'avvio del browser (es. dopo un crash o una chiusura a metà download),
 // Chrome può ri-notificare tramite onCreated i download rimasti in stato
@@ -185,31 +179,11 @@ chrome.downloads.onCreated.addListener(async (item) => {
   // Solo download da rete: blob:, data:, file: ecc. non hanno senso su pyLoad.
   if (!/^(https?|ftps?):\/\//i.test(url)) return;
 
-  // I download riavviati da "Continua con Chrome" non vanno re-intercettati.
-  const bypass = await getBypassUrls();
-  const bypassIndex = bypass.indexOf(url);
-  if (bypassIndex !== -1) {
-    bypass.splice(bypassIndex, 1);
-    await setBypassUrls(bypass);
-    return;
-  }
-
-  // Ferma subito il download: niente deve partire finché l'utente non sceglie.
-  try {
-    await chrome.downloads.cancel(item.id);
-  } catch (err) {
-    // già terminato/annullato
-  }
-  try {
-    await chrome.downloads.erase({ id: item.id });
-  } catch (err) {
-    // ignora
-  }
-
   const interceptId = `${Date.now()}-${item.id}`;
   const info = {
     url,
-    filename: (item.filename || "").split(/[\\/]/).pop() || ""
+    filename: (item.filename || "").split(/[\\/]/).pop() || "",
+    downloadId: item.id
   };
   await chrome.storage.session.set({ [INTERCEPT_PREFIX + interceptId]: info });
 
@@ -437,6 +411,19 @@ function showInterceptModal(interceptId, url, filename, strings) {
   backdrop.addEventListener("click", () => choose("abort"));
 }
 
+async function cancelChromeDownload(downloadId) {
+  try {
+    await chrome.downloads.cancel(downloadId);
+  } catch (err) {
+    // già terminato/annullato
+  }
+  try {
+    await chrome.downloads.erase({ id: downloadId });
+  } catch (err) {
+    // ignora
+  }
+}
+
 async function resolveInterceptedDownload(interceptId, choice) {
   const key = INTERCEPT_PREFIX + interceptId;
   const stored = await chrome.storage.session.get(key);
@@ -447,29 +434,24 @@ async function resolveInterceptedDownload(interceptId, choice) {
 
   if (choice === "pyload") {
     const result = await sendToPyload([info.url]);
-    // In caso di errore il download resta pendente: l'utente può ancora
-    // riprovare o scegliere Chrome dallo stesso modale.
+    // In caso di errore il download di Chrome resta in corso: l'utente può
+    // ancora riprovare o lasciarlo proseguire dallo stesso modale.
     if (result.ok) {
       await chrome.storage.session.remove(key);
+      await cancelChromeDownload(info.downloadId);
     }
     return result;
   }
 
   if (choice === "chrome") {
+    // Il download prosegue già da solo: non c'è nulla da fare.
     await chrome.storage.session.remove(key);
-    const bypass = await getBypassUrls();
-    bypass.push(info.url);
-    await setBypassUrls(bypass);
-    try {
-      await chrome.downloads.download({ url: info.url });
-    } catch (err) {
-      return { ok: false, error: t("errRestartChrome") };
-    }
     return { ok: true };
   }
 
-  // "abort": il download era già stato annullato alla creazione.
+  // "abort": annulla il download in corso senza inviare nulla a pyLoad.
   await chrome.storage.session.remove(key);
+  await cancelChromeDownload(info.downloadId);
   return { ok: true };
 }
 

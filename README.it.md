@@ -7,12 +7,12 @@ Estensione Chrome (Manifest V3) per inviare link a un server [pyLoad](https://py
 ## Funzionalità
 
 - **Menù contestuale** — tasto destro su un link, un'immagine, un video, del testo selezionato o sulla pagina → **"Scarica con pyLoad"**. Dal testo selezionato vengono estratti automaticamente tutti gli URL.
-- **Intercetta download** (opzionale) — quando Chrome sta per avviare un download normale, l'estensione **lo blocca subito** (non parte nulla e non compare nella barra dei download) e mostra un **modale nella pagina** con tre scelte:
-  - **Scarica con pyLoad** — il link viene inviato al server;
-  - **Continua con Chrome** — il download viene riavviato normalmente;
-  - **Annulla** (anche con Esc o clic fuori dal modale) — non viene scaricato nulla.
+- **Intercetta download** (opzionale) — il download **parte normalmente in Chrome**, e in parallelo un **modale nella pagina** chiede cosa farne:
+  - **Continua con pyLoad** — il download di Chrome viene annullato e il link viene inviato al server;
+  - **Continua con Chrome** — non succede nulla, il download prosegue per conto suo;
+  - **Annulla** (anche con Esc o clic fuori dal modale) — il download viene fermato e non viene inviato nulla a pyLoad.
 
-  Dove il modale non può essere iniettato (pagine `chrome://`, Web Store…) si apre una finestra di scelta centrata.
+  Dove il modale non può essere iniettato (pagine `chrome://`, Web Store…) si apre una finestra di scelta centrata. Se l'invio a pyLoad fallisce (es. sessione scaduta), il download di Chrome resta in corso per non perdere nulla.
 - **Click sull'icona** — l'icona dell'estensione fissata nella barra funge da interruttore dell'intercettazione: badge verde **ON** quando è attiva.
 - **Notifiche** di conferma o di errore dopo ogni invio.
 - **Multilingua** — inglese (default) e italiano, selezionati automaticamente in base alla lingua del browser (`chrome.i18n`, cartella `_locales/`).

@@ -98,17 +98,14 @@
   "errDownloadGone": {
     "message": "Download no longer available"
   },
-  "errRestartChrome": {
-    "message": "Could not restart the download with Chrome"
-  },
   "interceptTitle": {
-    "message": "Download intercepted"
+    "message": "Download started"
   },
   "interceptQuestion": {
-    "message": "How do you want to download this file?"
+    "message": "Continue with pyLoad or with Chrome?"
   },
   "btnPyload": {
-    "message": "Download with pyLoad"
+    "message": "Continue with pyLoad"
   },
   "btnChrome": {
     "message": "Continue with Chrome"

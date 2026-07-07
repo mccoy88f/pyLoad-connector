@@ -7,12 +7,12 @@ A Chrome extension (Manifest V3) to send links to a [pyLoad](https://pyload.net/
 ## Features
 
 - **Context menu** — right-click on a link, an image, a video, selected text or the page → **"Download with pyLoad"**. All URLs are automatically extracted from selected text.
-- **Download interception** (optional) — when Chrome is about to start a regular download, the extension **blocks it immediately** (nothing starts and nothing appears in the download bar) and shows an **in-page modal** with three choices:
-  - **Download with pyLoad** — the link is sent to the server;
-  - **Continue with Chrome** — the download is restarted normally;
-  - **Cancel** (also with Esc or by clicking outside the modal) — nothing is downloaded.
+- **Download interception** (optional) — the download **starts normally in Chrome**, and at the same time an **in-page modal** asks what to do with it:
+  - **Continue with pyLoad** — the Chrome download is cancelled and the link is sent to the server instead;
+  - **Continue with Chrome** — nothing happens, the download keeps going on its own;
+  - **Cancel** (also with Esc or by clicking outside the modal) — the download is stopped and nothing is sent to pyLoad.
 
-  Where the modal cannot be injected (`chrome://` pages, Web Store…) a centered chooser window opens instead.
+  Where the modal cannot be injected (`chrome://` pages, Web Store…) a centered chooser window opens instead. If sending to pyLoad fails (e.g. expired session), the Chrome download is left running so nothing is lost.
 - **Icon click** — the pinned extension icon works as an interception toggle: green **ON** badge when active.
 - **Notifications** confirming success or reporting errors after every send.
 - **Multilingual** — English (default) and Italian, selected automatically from the browser language (`chrome.i18n`, `_locales/` folder).
