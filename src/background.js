@@ -161,7 +161,23 @@ async function setBypassUrls(urls) {
   await chrome.storage.session.set({ [BYPASS_KEY]: urls });
 }
 
+// All'avvio del browser (es. dopo un crash o una chiusura a metà download),
+// Chrome può ri-notificare tramite onCreated i download rimasti in stato
+// "in_progress"/"interrupted" da sessioni precedenti. Senza questi due
+// controlli l'estensione li tratterebbe come download nuovi, intercettando
+// e mostrando un modale per ognuno dei vecchi link.
+const FRESH_DOWNLOAD_WINDOW_MS = 5000;
+
+function isFreshDownload(item) {
+  if (item.state !== "in_progress") return false;
+  const started = Date.parse(item.startTime);
+  if (Number.isNaN(started)) return false;
+  return Date.now() - started < FRESH_DOWNLOAD_WINDOW_MS;
+}
+
 chrome.downloads.onCreated.addListener(async (item) => {
+  if (!isFreshDownload(item)) return;
+
   const settings = await getSettings();
   if (!settings.interceptDownloads) return;
 
